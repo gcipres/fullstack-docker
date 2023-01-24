@@ -1,0 +1,36 @@
+version: "3"
+services:
+  db:
+    image: mysql:8.0
+    container_name: db
+    environment:
+      - MYSQL_DATABASE=app
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3306:3306"
+    command: --init-file /data/application/init.sql
+    volumes:
+        - ./back/config/init.sql:/data/application/init.sql
+  back:
+    image: python:3.10-slim
+    container_name: back
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    volumes:
+      - ./back:/usr/src/back
+    ports:
+      - 8000:8000
+    links:
+      - "db:database"
+  front:
+    image: node:16-slim
+    container_name: front
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    volumes:
+      - ./front:/usr/src/front
+    ports:
+      - 3000:3000
